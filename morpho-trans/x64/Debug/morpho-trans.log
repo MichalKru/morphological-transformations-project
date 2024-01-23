@@ -1,0 +1,31 @@
+﻿  Compiling CUDA source file kernel.cu...
+  
+  C:\Users\micha\source\repos\morpho-trans\morpho-trans>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\bin\HostX64\x64" -x cu   -IC:\opencv\build\include -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include"  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc143.pdb /FS /Zi /RTC1 /MDd " -o C:\Users\micha\source\repos\morpho-trans\morpho-trans\x64\Debug\kernel.cu.obj "C:\Users\micha\source\repos\morpho-trans\morpho-trans\kernel.cu" 
+C:\opencv\build\include\opencv2/stitching/detail/warpers.hpp(235): warning #611-D: overloaded virtual function "cv::detail::PlaneWarper::buildMaps" is only partially overridden in class "cv::detail::AffineWarper"
+  
+C:\opencv\build\include\opencv2/stitching/detail/warpers.hpp(235): warning #611-D: overloaded virtual function "cv::detail::PlaneWarper::warp" is only partially overridden in class "cv::detail::AffineWarper"
+  
+C:\opencv\build\include\opencv2/stitching/detail/matchers.hpp(182): warning #611-D: overloaded virtual function "cv::detail::FeaturesMatcher::match" is only partially overridden in class "cv::detail::BestOf2NearestMatcher"
+  
+C:\opencv\build\include\opencv2/stitching/detail/matchers.hpp(236): warning #611-D: overloaded virtual function "cv::detail::FeaturesMatcher::match" is only partially overridden in class "cv::detail::AffineBestOf2NearestMatcher"
+  
+C:\opencv\build\include\opencv2/stitching/detail/blenders.hpp(100): warning #611-D: overloaded virtual function "cv::detail::Blender::prepare" is only partially overridden in class "cv::detail::FeatherBlender"
+  
+C:\opencv\build\include\opencv2/stitching/detail/blenders.hpp(127): warning #611-D: overloaded virtual function "cv::detail::Blender::prepare" is only partially overridden in class "cv::detail::MultiBandBlender"
+  
+C:\opencv\build\include\opencv2/stitching/detail/warpers.hpp(235): warning #611-D: overloaded virtual function "cv::detail::PlaneWarper::buildMaps" is only partially overridden in class "cv::detail::AffineWarper"
+  
+C:\opencv\build\include\opencv2/stitching/detail/warpers.hpp(235): warning #611-D: overloaded virtual function "cv::detail::PlaneWarper::warp" is only partially overridden in class "cv::detail::AffineWarper"
+  
+C:\opencv\build\include\opencv2/stitching/detail/matchers.hpp(182): warning #611-D: overloaded virtual function "cv::detail::FeaturesMatcher::match" is only partially overridden in class "cv::detail::BestOf2NearestMatcher"
+  
+C:\opencv\build\include\opencv2/stitching/detail/matchers.hpp(236): warning #611-D: overloaded virtual function "cv::detail::FeaturesMatcher::match" is only partially overridden in class "cv::detail::AffineBestOf2NearestMatcher"
+  
+C:\opencv\build\include\opencv2/stitching/detail/blenders.hpp(100): warning #611-D: overloaded virtual function "cv::detail::Blender::prepare" is only partially overridden in class "cv::detail::FeatherBlender"
+  
+C:\opencv\build\include\opencv2/stitching/detail/blenders.hpp(127): warning #611-D: overloaded virtual function "cv::detail::Blender::prepare" is only partially overridden in class "cv::detail::MultiBandBlender"
+  
+  kernel.cu
+     Creating library C:\Users\micha\source\repos\morpho-trans\x64\Debug\morpho-trans.lib and object C:\Users\micha\source\repos\morpho-trans\x64\Debug\morpho-trans.exp
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  morpho-trans.vcxproj -> C:\Users\micha\source\repos\morpho-trans\x64\Debug\morpho-trans.exe
