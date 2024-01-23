@@ -55,12 +55,97 @@ __global__ void erosionKernel(const unsigned char* inputImage, unsigned char* ou
     }
 }
 
+__global__ void openingKernel(const unsigned char* inputImage, unsigned char* outputImage, int width, int height, int kernelSize) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        int halfKernel = kernelSize / 2;
+        int minValue = 255;
+
+        // Erozja
+        for (int i = -halfKernel; i <= halfKernel; ++i) {
+            for (int j = -halfKernel; j <= halfKernel; ++j) {
+                int newX = x + i;
+                int newY = y + j;
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                    int pixelValue = inputImage[newY * width + newX];
+                    minValue = (pixelValue < minValue) ? pixelValue : minValue;
+                }
+            }
+        }
+
+        // Przypisanie wyniku erozji do tymczasowego obrazu
+        unsigned char erodedImage = minValue;
+
+        // Dilatacja na wyniku erozji
+        int maxValue = 0;
+
+        for (int i = -halfKernel; i <= halfKernel; ++i) {
+            for (int j = -halfKernel; j <= halfKernel; ++j) {
+                int newX = x + i;
+                int newY = y + j;
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                    int pixelValue = erodedImage;  // Użyj erodedImage
+                    maxValue = (pixelValue > maxValue) ? pixelValue : maxValue;
+                }
+            }
+        }
+
+        outputImage[y * width + x] = maxValue; // Wynik operacji otwarcia
+    }
+}
+
+__global__ void closingKernel(const unsigned char* inputImage, unsigned char* outputImage, int width, int height, int kernelSize) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        int halfKernel = kernelSize / 2;
+        int maxValue = 0;
+
+        // Dilatacja
+        for (int i = -halfKernel; i <= halfKernel; ++i) {
+            for (int j = -halfKernel; j <= halfKernel; ++j) {
+                int newX = x + i;
+                int newY = y + j;
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                    int pixelValue = inputImage[newY * width + newX];
+                    maxValue = (pixelValue > maxValue) ? pixelValue : maxValue;
+                }
+            }
+        }
+
+        // Przypisanie wyniku dilatacji do tymczasowego obrazu
+        unsigned char dilatedImage = maxValue;
+
+        // Erozja na wyniku dilatacji
+        int minValue = 255;
+
+        for (int i = -halfKernel; i <= halfKernel; ++i) {
+            for (int j = -halfKernel; j <= halfKernel; ++j) {
+                int newX = x + i;
+                int newY = y + j;
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                    int pixelValue = dilatedImage;
+                    minValue = (pixelValue < minValue) ? pixelValue : minValue;
+                }
+            }
+        }
+
+        outputImage[y * width + x] = minValue; // Wynik operacji zamykania
+    }
+}
 
 
 int main() {
     // Wczytaj obraz za pomocą OpenCV
     int option;
-    std::cout << "wybierz operacje. 1- dylacja, 2- erozja\n";
+    std::cout << "wybierz operacje. 1- dylacja, 2- erozja, 3- otwieranie, 4- zamykanie\n";
     std::cin >> option;
 
     cv::Mat image = cv::imread("C:\\Users\\micha\\source\\repos\\morpho-trans\\cos.jpg", cv::IMREAD_GRAYSCALE);
@@ -97,6 +182,12 @@ int main() {
     }
     else if (option == 2) {
         erosionKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+    }
+     else if (option == 3) {
+        openingKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+    }
+    else if (option == 4) {
+        closingKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
     }
     else {
         std::cout << "zle wejscie";
