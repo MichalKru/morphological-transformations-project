@@ -78,7 +78,7 @@ __global__ void openingKernel(const unsigned char* inputImage, unsigned char* ou
 
         unsigned char erodedImage = minValue;
 
-        // Dilatacja na wyniku erozji
+        // Dylatacja na wyniku erozji
         int maxValue = 0;
 
         for (int i = -halfKernel; i <= halfKernel; ++i) {
@@ -87,13 +87,13 @@ __global__ void openingKernel(const unsigned char* inputImage, unsigned char* ou
                 int newY = y + j;
 
                 if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
-                    int pixelValue = erodedImage;  // Użyj erodedImage
+                    int pixelValue = erodedImage; 
                     maxValue = (pixelValue > maxValue) ? pixelValue : maxValue;
                 }
             }
         }
 
-        outputImage[y * width + x] = maxValue; // Wynik operacji otwarcia
+        outputImage[y * width + x] = maxValue; 
     }
 }
 
@@ -135,7 +135,7 @@ __global__ void closingKernel(const unsigned char* inputImage, unsigned char* ou
             }
         }
 
-        outputImage[y * width + x] = minValue; // Wynik operacji zamykania
+        outputImage[y * width + x] = minValue;
     }
 }
 
