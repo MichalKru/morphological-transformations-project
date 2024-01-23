@@ -111,10 +111,10 @@ int main() {
     cudaFree(deviceOutput);
 
     // Wyświetl oryginalny i przetworzony obraz
-    cv::imshow("Original", image);
+    cv::imshow("original", image);
 
-    cv::Mat invertedImage(height, width, CV_8UC1, hostOutput);
-    cv::imshow("Inverted", invertedImage);
+    cv::Mat editedImage(height, width, CV_8UC1, hostOutput);
+    cv::imshow("edited", editedImage);
 
     cv::waitKey(0);
 
