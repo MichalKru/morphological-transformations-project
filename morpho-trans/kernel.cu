@@ -13,7 +13,7 @@ __global__ void dilationKernel(const unsigned char* inputImage, unsigned char* o
 
     if (x < width && y < height) {
         int halfKernel = kernelSize / 2;
-        int maxValue = 0; // Zmiana na maksymalną wartość
+        int maxValue = 0; 
 
         for (int i = -halfKernel; i <= halfKernel; ++i) {
             for (int j = -halfKernel; j <= halfKernel; ++j) {
@@ -22,12 +22,12 @@ __global__ void dilationKernel(const unsigned char* inputImage, unsigned char* o
 
                 if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
                     int pixelValue = inputImage[newY * width + newX];
-                    maxValue = (pixelValue > maxValue) ? pixelValue : maxValue; // Zmiana na maksymalną wartość
+                    maxValue = (pixelValue > maxValue) ? pixelValue : maxValue; 
                 }
             }
         }
 
-        outputImage[y * width + x] = maxValue; // Zapisanie maksymalnej wartości jako wynik erozji
+        outputImage[y * width + x] = maxValue; 
     }
 }
 
@@ -76,7 +76,6 @@ __global__ void openingKernel(const unsigned char* inputImage, unsigned char* ou
             }
         }
 
-        // Przypisanie wyniku erozji do tymczasowego obrazu
         unsigned char erodedImage = minValue;
 
         // Dilatacja na wyniku erozji
@@ -106,7 +105,7 @@ __global__ void closingKernel(const unsigned char* inputImage, unsigned char* ou
         int halfKernel = kernelSize / 2;
         int maxValue = 0;
 
-        // Dilatacja
+        // Dylatacja
         for (int i = -halfKernel; i <= halfKernel; ++i) {
             for (int j = -halfKernel; j <= halfKernel; ++j) {
                 int newX = x + i;
@@ -119,10 +118,9 @@ __global__ void closingKernel(const unsigned char* inputImage, unsigned char* ou
             }
         }
 
-        // Przypisanie wyniku dilatacji do tymczasowego obrazu
         unsigned char dilatedImage = maxValue;
 
-        // Erozja na wyniku dilatacji
+        // Erozja na wyniku dylatacji
         int minValue = 255;
 
         for (int i = -halfKernel; i <= halfKernel; ++i) {
@@ -143,7 +141,6 @@ __global__ void closingKernel(const unsigned char* inputImage, unsigned char* ou
 
 
 int main() {
-    // Wczytaj obraz za pomocą OpenCV
     int option;
     std::cout << "wybierz operacje. 1- dylacja, 2- erozja, 3- otwieranie, 4- zamykanie\n";
     std::cin >> option;
@@ -155,7 +152,6 @@ int main() {
         return -1;
     }
 
-    // Przygotuj dane na hostingu i urządzeniu
     int width = image.cols;
     int height = image.rows;
     size_t imageSize = width * height * sizeof(uchar);
@@ -169,14 +165,11 @@ int main() {
     cudaMalloc((void**)&deviceInput, imageSize);
     cudaMalloc((void**)&deviceOutput, imageSize);
 
-    // Skopiuj dane z hostingu do urządzenia
     cudaMemcpy(deviceInput, hostInput, imageSize, cudaMemcpyHostToDevice);
 
-    // Określ rozmiar bloków i siatki
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-    // Wywołaj odpowiedni kernel do inwersji kolorów
     if (option == 1) {
         dilationKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
     }
@@ -194,14 +187,11 @@ int main() {
         return 0;
     }
 
-    // Skopiuj wyniki z urządzenia do hostingu
     cudaMemcpy(hostOutput, deviceOutput, imageSize, cudaMemcpyDeviceToHost);
 
-    // Zwolnij pamięć na urządzeniu
     cudaFree(deviceInput);
     cudaFree(deviceOutput);
 
-    // Wyświetl oryginalny i przetworzony obraz
     cv::imshow("original", image);
 
     cv::Mat editedImage(height, width, CV_8UC1, hostOutput);
@@ -209,7 +199,6 @@ int main() {
 
     cv::waitKey(0);
 
-    // Zwolnij pamięć na hoście
     delete[] hostOutput;
 
     return 0;
