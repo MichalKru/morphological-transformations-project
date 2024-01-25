@@ -177,12 +177,34 @@ __global__ void topHatKernel(const unsigned char* inputImageOriginal, const unsi
     }
 }
 
+__global__ void blackHatKernel(const unsigned char* inputImageOriginal, const unsigned char* inputImageClosing, unsigned char* outputImage, int width, int height, int kernelSize) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        int originalValue = inputImageOriginal[y * width + x];
+        int closinglValue = inputImageClosing[y * width + x];
+
+        outputImage[y * width + x] = originalValue - closinglValue;
+    }
+}
+
+__global__ void invertColorsKernel(const unsigned char* inputImage, unsigned char* outputImage, int width, int height) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        int pixelIdx = y * width + x;
+        outputImage[pixelIdx] = 255 - inputImage[pixelIdx];
+    }
+}
+
 int main() {
     int option;
-    std::cout << "wybierz operacje. 1- dylacja, 2- erozja, 3- otwieranie, 4- zamykanie, 5- morpological gradient, 6- top hat\n";
+    std::cout << "wybierz operacje. 1- dylatacja, 2- erozja, 3- zamykanie, 4- otwieranie, 5- morpological gradient, 6- top hat, 7- black hat, 8- invert colours\n";
     std::cin >> option;
 
-    cv::Mat image = cv::imread("C:\\Users\\micha\\source\\repos\\morpho-trans\\cos.jpg", cv::IMREAD_GRAYSCALE);
+    cv::Mat image = cv::imread("C:\\Users\\falek\\Documents\\balwan.jpg", cv::IMREAD_GRAYSCALE);
 
     if (image.empty()) {
         std::cerr << "Nie można wczytać obrazu." << std::endl;
@@ -195,12 +217,18 @@ int main() {
 
     uchar* hostInput = image.data;
     uchar* hostOutput = new uchar[imageSize];
+    uchar* hostOutput2 = new uchar[imageSize];
+    uchar* hostOutput3 = new uchar[imageSize];
 
     uchar* deviceInput;
     uchar* deviceOutput;
+    uchar* deviceOutput2;
+    uchar* deviceOutput3;
 
     cudaMalloc((void**)&deviceInput, imageSize);
     cudaMalloc((void**)&deviceOutput, imageSize);
+    cudaMalloc((void**)&deviceOutput2, imageSize);
+    cudaMalloc((void**)&deviceOutput3, imageSize);
 
     cudaMemcpy(deviceInput, hostInput, imageSize, cudaMemcpyHostToDevice);
 
@@ -209,31 +237,78 @@ int main() {
 
     if (option == 1) {
         dilationKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput);
+
     }
     else if (option == 2) {
         erosionKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput);
+
     }
-     else if (option == 3) {
-        openingKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+    else if (option == 3) {
+
+        dilationKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        erosionKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput2, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput2);
+
     }
     else if (option == 4) {
-        closingKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        erosionKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        dilationKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput2, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput2);
+
     }
     else if (option == 5) {
-    morphologicalGradientKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        morphologicalGradientKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput);
+
     }
     else if (option == 6) {
-        topHatKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        erosionKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        dilationKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 5);
+        topHatKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput2, deviceOutput3, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput3, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput3);
+
+    }
+    else if (option == 7) {
+        dilationKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+        erosionKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 5);
+        blackHatKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput2, deviceOutput3, width, height, 5);
+
+        cudaMemcpy(hostOutput, deviceOutput3, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput3);
+
+    }
+    else if (option == 8) {
+        invertColorsKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height);
+
+        cudaMemcpy(hostOutput, deviceOutput, imageSize, cudaMemcpyDeviceToHost);
+        cudaFree(deviceInput);
+        cudaFree(deviceOutput);
     }
     else {
         std::cout << "zle wejscie";
         return 0;
     }
-
-    cudaMemcpy(hostOutput, deviceOutput, imageSize, cudaMemcpyDeviceToHost);
-
-    cudaFree(deviceInput);
-    cudaFree(deviceOutput);
 
     cv::imshow("original", image);
 
