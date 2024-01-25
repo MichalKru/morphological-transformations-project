@@ -139,6 +139,31 @@ __global__ void closingKernel(const unsigned char* inputImage, unsigned char* ou
     }
 }
 
+__global__ void morphologicalGradientKernel(const unsigned char* inputImage, unsigned char* outputImage, int width, int height, int kernelSize) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        int halfKernel = kernelSize / 2;
+        int maxValue = 0;
+        int minValue = 255;
+
+        for (int i = -halfKernel; i <= halfKernel; ++i) {
+            for (int j = -halfKernel; j <= halfKernel; ++j) {
+                int newX = x + i;
+                int newY = y + j;
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                    int pixelValue = inputImage[newY * width + newX];
+                    maxValue = (pixelValue > maxValue) ? pixelValue : maxValue;
+                    minValue = (pixelValue < minValue) ? pixelValue : minValue;
+                }
+            }
+        }
+
+        outputImage[y * width + x] = maxValue - minValue;
+    }
+}
 
 int main() {
     int option;
@@ -181,6 +206,12 @@ int main() {
     }
     else if (option == 4) {
         closingKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+    }
+    else if (option == 5) {
+    morphologicalGradientKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
+    }
+    else if (option == 6) {
+        topHatKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
     }
     else {
         std::cout << "zle wejscie";
