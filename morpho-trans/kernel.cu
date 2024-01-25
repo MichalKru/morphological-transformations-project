@@ -142,7 +142,7 @@ __global__ void closingKernel(const unsigned char* inputImage, unsigned char* ou
 
 int main() {
     int option;
-    std::cout << "wybierz operacje. 1- dylacja, 2- erozja, 3- otwieranie, 4- zamykanie\n";
+    std::cout << "wybierz operacje. 1- dylacja, 2- erozja, 3- otwieranie, 4- zamykanie, 5- morpological gradient, 6- top hat\n";
     std::cin >> option;
 
     cv::Mat image = cv::imread("C:\\Users\\micha\\source\\repos\\morpho-trans\\cos.jpg", cv::IMREAD_GRAYSCALE);
