@@ -165,6 +165,18 @@ __global__ void morphologicalGradientKernel(const unsigned char* inputImage, uns
     }
 }
 
+__global__ void topHatKernel(const unsigned char* inputImageOriginal, const unsigned char* inputImageOpening, unsigned char* outputImage, int width, int height, int kernelSize) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        int originalValue = inputImageOriginal[y * width + x];
+        int openinglValue = inputImageOpening[y * width + x];
+
+        outputImage[y * width + x] = originalValue - openinglValue;
+    }
+}
+
 int main() {
     int option;
     std::cout << "wybierz operacje. 1- dylacja, 2- erozja, 3- otwieranie, 4- zamykanie, 5- morpological gradient, 6- top hat\n";
