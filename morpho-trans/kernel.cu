@@ -253,8 +253,8 @@ int main() {
     }
     else if (option == 3) {
 
-        dilationKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
-        erosionKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 5);
+        dilationKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 10);
+        erosionKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 10);
 
         cudaMemcpy(hostOutput, deviceOutput2, imageSize, cudaMemcpyDeviceToHost);
         cudaFree(deviceInput);
@@ -262,8 +262,8 @@ int main() {
 
     }
     else if (option == 4) {
-        erosionKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 5);
-        dilationKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 5);
+        erosionKernel << <gridSize, blockSize >> > (deviceInput, deviceOutput, width, height, 10);
+        dilationKernel << <gridSize, blockSize >> > (deviceOutput, deviceOutput2, width, height, 10);
 
         cudaMemcpy(hostOutput, deviceOutput2, imageSize, cudaMemcpyDeviceToHost);
         cudaFree(deviceInput);
